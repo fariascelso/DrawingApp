@@ -1,5 +1,6 @@
 package com.example.drawingapp
 
+import android.Manifest
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
@@ -67,7 +68,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun PaintApp() {
-    val context = LocalContext.current.applicationContext
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     var currentColor by remember { mutableStateOf(Color.Black) }
@@ -85,7 +86,20 @@ fun PaintApp() {
 
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            //launcher.launch(Manifest.permission.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION) //permission.WRITE_EXTERNAL_STORAGE
+            // Android 10 (API 29) e superior
+            // Permissões de mídia granulares
+            val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                // Android 13 (API 33) e superior
+                // Permissões de mídia granulares
+                Manifest.permission.READ_MEDIA_IMAGES
+            } else {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }
+            launcher.launch(permission)
+        } else {
+            // Android 9 (API 28) e inferior
+            // Permissão de armazenamento externo
+            launcher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
     }
 
@@ -226,7 +240,7 @@ data class Line(val start: Offset,
                 val strokeWidth: Float = 10F
 )
 
-suspend fun saveDrawingToGallery(context: Context, lines: List<Line>) {
+fun saveDrawingToGallery(context: Context, lines: List<Line>) {
     val bitmap = Bitmap.createBitmap(1080, 1920, Bitmap.Config.ARGB_8888)
 
     bitmap.applyCanvas {
