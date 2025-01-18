@@ -10,7 +10,6 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -20,6 +19,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -91,39 +90,52 @@ fun PaintApp() {
     }
 
     Column(Modifier.fillMaxSize()) {
-        Row(
-            Modifier.fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ColorPicker { selectedColor ->
-                currentColor = selectedColor
-                isEraser = false
-            }
+        Column {
 
-            BrushSizeSelector(brushSize,
-                onSizeSelected = { selectedSize ->
-                    brushSize = selectedSize },
-                isEraser = isEraser,
-                keepMode = { keepEraserMode ->
-                    isEraser = keepEraserMode }
-            )
-
-            Button(onClick = { isEraser = true }) {
-                Text("Borracha")
-            }
-
-            Button(onClick = { lines.clear() }) {
-                Text("Limpar")
-            }
-
-            Button(onClick = {
-                coroutineScope.launch {
-                    saveDrawingToGallery(context, lines)
+            Row(
+                Modifier.fillMaxWidth()
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ColorPicker { selectedColor ->
+                    currentColor = selectedColor
+                    isEraser = false
                 }
-            }) {
-                Text("Salvar")
+
+                BrushSizeSelector(brushSize,
+                    onSizeSelected = { selectedSize ->
+                        brushSize = selectedSize
+                    },
+                    isEraser = isEraser,
+                    keepMode = { keepEraserMode ->
+                        isEraser = keepEraserMode
+                    }
+                )
+            }
+
+            Row(
+                Modifier.fillMaxWidth()
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Button(onClick = { isEraser = true }) {
+                    Text("Borracha")
+                }
+
+                Button(onClick = { lines.clear() }) {
+                    Text("Limpar")
+                }
+
+                Button(onClick = {
+                    coroutineScope.launch {
+                        saveDrawingToGallery(context, lines)
+                    }
+                }) {
+                    Text("Salvar")
+                }
             }
         }
 
@@ -168,15 +180,17 @@ fun ColorPicker(onColorSelected: (Color) -> Unit){
             Box(Modifier
                 .size(40.dp)
                 .background(color, CircleShape)
-                .padding(4.dp)
+                .padding(12.dp)
                 .clickable {
                     onColorSelected(color)
                     Toast.makeText(context, name, Toast.LENGTH_LONG).show()
-                }) { }
+                }
+            )
+
+            Spacer(modifier = Modifier.padding(12.dp))
         }
     }
 }
-
 
 @Composable
 fun BrushSizeSelector(
@@ -199,7 +213,7 @@ fun BrushSizeSelector(
             textStyle = TextStyle(fontSize = 16.sp),
             modifier = Modifier
                 .width(60.dp)
-                .background(Color.LightGray, CircleShape)
+                .background(Color.Gray, CircleShape)
                 .padding(8.dp)
         )
         Text(" px", Modifier.align(Alignment.CenterVertically))
@@ -251,18 +265,10 @@ suspend fun saveDrawingToGallery(context: Context, lines: List<Line>) {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun Preview() {
     DrawingAppTheme {
-        Greeting("Android")
+        PaintApp()
     }
 }
